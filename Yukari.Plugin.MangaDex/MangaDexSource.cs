@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-﻿using Yukari.Core.Models;
+using Yukari.Core.Models;
 using Yukari.Core.Sources;
 using Yukari.Plugin.MangaDex.Data;
 
@@ -9,7 +9,43 @@ namespace Yukari.Plugin.MangaDex
     {
         public string Name => "MangaDex";
 
-        public Task<List<Comic>> SearchAsync(string query) => throw new NotImplementedException();
+        private const string BaseUrl = "https://api.mangadex.org";
+
+        private readonly HttpClient _httpClient = new HttpClient();
+
+        public MangaDexSource()
+        {
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex");
+        }
+
+        public async Task<List<Comic>> SearchAsync(string query)
+        {
+            string searchUrl = $"{BaseUrl}/manga?limit=24&title={query}";
+
+            var response = await _httpClient.GetAsync(searchUrl);
+            response.EnsureSuccessStatusCode();
+
+            MangaDexComic[] searchResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
+
+            var mangas = new List<Comic>();
+            foreach (var result in searchResults)
+            {
+                mangas.Add(new Comic(
+                    Id: result.Id,
+                    Source: Name,
+                    Slug: result.Id,
+                    Title: GetLocalized(result.Attributes.Title),
+                    Author: null,
+                    Description: null,
+                    Tags: [],
+                    Year: null,
+                    CoverImageUrl: result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ? await GetCoverUrl(result.Id, coverId) : null,
+                    Langs: []
+                ));
+            }
+            return mangas;
+        }
+
         public Task<List<Comic>> GetTrendingAsync() => throw new NotImplementedException();
         public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
