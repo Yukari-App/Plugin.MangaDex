@@ -34,5 +34,8 @@ namespace Yukari.Plugin.MangaDex
 
             return $"https://uploads.mangadex.org/covers/{mangaId}/{coverData.Attributes.FileName}";
         }
+
+        private static string GetLocalized(Dictionary<string, string> dict, string fallback = "Unknown") =>
+            dict.TryGetValue("en", out var value) ? value : dict.Values.FirstOrDefault() ?? fallback;
     }
 }
