@@ -9,7 +9,6 @@ namespace Yukari.Plugin.MangaDex.Data
             [property: JsonPropertyName("description")] Dictionary<string, string> Description,
             [property: JsonPropertyName("year")] int Year,
             [property: JsonPropertyName("tags")] Tag[] Tags,
-            [property: JsonPropertyName("availableTranslatedLanguages")] string[] Languages,
-            [property: JsonPropertyName("relationships")] relationship[] Relationships
+            [property: JsonPropertyName("availableTranslatedLanguages")] string[] Languages
         );
 }
