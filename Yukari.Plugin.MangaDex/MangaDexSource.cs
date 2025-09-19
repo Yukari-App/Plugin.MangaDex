@@ -12,5 +12,15 @@ namespace Yukari.Plugin.MangaDex
         public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language) => throw new NotImplementedException();
+
+        public async Task<string> GetAuthorName(string authorId)
+        {
+            var response = await _httpClient.GetAsync($"{BaseUrl}/author/{authorId}");
+            response.EnsureSuccessStatusCode();
+
+            Author authorData = (await response.Content.ReadFromJsonAsync<AuthorResponse>())?.Data;
+
+            return authorData.Attributes.Name;
+        }
     }
 }
