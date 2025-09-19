@@ -1,5 +1,7 @@
+﻿using System.Net.Http.Json;
 ﻿using Yukari.Core.Models;
 using Yukari.Core.Sources;
+using Yukari.Plugin.MangaDex.Data;
 
 namespace Yukari.Plugin.MangaDex
 {
@@ -21,6 +23,16 @@ namespace Yukari.Plugin.MangaDex
             Author authorData = (await response.Content.ReadFromJsonAsync<AuthorResponse>())?.Data;
 
             return authorData.Attributes.Name;
+        }
+
+        public async Task<string> GetCoverUrl(string mangaId, string coverId)
+        {
+            var response = await _httpClient.GetAsync($"{BaseUrl}/cover/{coverId}");
+            response.EnsureSuccessStatusCode();
+
+            Cover coverData = (await response.Content.ReadFromJsonAsync<CoverResponse>())?.Data;
+
+            return $"https://uploads.mangadex.org/covers/{mangaId}/{coverData.Attributes.FileName}";
         }
     }
 }
