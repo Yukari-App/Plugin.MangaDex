@@ -6,6 +6,6 @@ namespace Yukari.Plugin.MangaDex.Data
             [property: JsonPropertyName("id")] string Id,
             [property: JsonPropertyName("type")] string Type,
             [property: JsonPropertyName("attributes")] ComicAttributes Attributes,
-            [property: JsonPropertyName("relationships")] relationship[] Relationships
+            [property: JsonPropertyName("relationships")] Relationship[] Relationships
         );
 }
