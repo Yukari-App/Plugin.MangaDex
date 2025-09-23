@@ -27,10 +27,12 @@ namespace Yukari.Plugin.MangaDex
 
             MangaDexComic[] searchResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
 
-            var mangas = new List<Comic>();
-            foreach (var result in searchResults)
+            var tasks = searchResults.Select(async result =>
             {
-                mangas.Add(new Comic(
+                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ?
+                    await GetCoverUrl(result.Id, coverId) : null;
+
+                return new Comic(
                     Id: result.Id,
                     Source: Name,
                     Slug: result.Id,
@@ -39,11 +41,12 @@ namespace Yukari.Plugin.MangaDex
                     Description: null,
                     Tags: [],
                     Year: null,
-                    CoverImageUrl: result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ? await GetCoverUrl(result.Id, coverId) : null,
+                    CoverImageUrl: coverUrl,
                     Langs: []
-                ));
-            }
-            return mangas;
+                );
+            });
+
+            return (await Task.WhenAll(tasks)).ToList();
         }
 
         public Task<List<Comic>> GetTrendingAsync() => throw new NotImplementedException();
