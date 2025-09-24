@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
 using Yukari.Plugin.MangaDex.Data;
@@ -49,7 +49,37 @@ namespace Yukari.Plugin.MangaDex
             return (await Task.WhenAll(tasks)).ToList();
         }
 
-        public Task<List<Comic>> GetTrendingAsync() => throw new NotImplementedException();
+        public async Task<List<Comic>> GetTrendingAsync()
+        {
+            string trendingUrl = $"{BaseUrl}/manga?limit=24&order[followedCount]=desc";
+
+            var response = await _httpClient.GetAsync(trendingUrl);
+            response.EnsureSuccessStatusCode();
+
+            MangaDexComic[] trendingResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
+
+            var tasks = trendingResults.Select(async result =>
+            {
+                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ?
+                    await GetCoverUrl(result.Id, coverId) : null;
+
+                return new Comic(
+                    Id: result.Id,
+                    Source: Name,
+                    Slug: result.Id,
+                    Title: GetLocalized(result.Attributes.Title),
+                    Author: null,
+                    Description: null,
+                    Tags: [],
+                    Year: null,
+                    CoverImageUrl: coverUrl,
+                    Langs: []
+                );
+            });
+
+            return (await Task.WhenAll(tasks)).ToList();
+        }
+
         public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language) => throw new NotImplementedException();
