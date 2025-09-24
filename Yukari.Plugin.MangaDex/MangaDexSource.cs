@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
 using Yukari.Plugin.MangaDex.Data;
@@ -20,17 +21,18 @@ namespace Yukari.Plugin.MangaDex
 
         public async Task<List<Comic>> SearchAsync(string query)
         {
-            string searchUrl = $"{BaseUrl}/manga?limit=24&title={query}";
+            string searchUrl = $"{BaseUrl}/manga?limit=24&&includes[]=cover_art&title={query}";
 
             var response = await _httpClient.GetAsync(searchUrl);
             response.EnsureSuccessStatusCode();
 
             MangaDexComic[] searchResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
 
-            var tasks = searchResults.Select(async result =>
+            var comics = searchResults.Select(result =>
             {
-                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ?
-                    await GetCoverUrl(result.Id, coverId) : null;
+                var coverUrl = result.Relationships
+                    .FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
+                    ? GetCoverUrl(result.Id, coverAttributes) : null;
 
                 return new Comic(
                     Id: result.Id,
@@ -44,24 +46,24 @@ namespace Yukari.Plugin.MangaDex
                     CoverImageUrl: coverUrl,
                     Langs: []
                 );
-            });
+            }).ToList();
 
-            return (await Task.WhenAll(tasks)).ToList();
+            return comics;
         }
 
         public async Task<List<Comic>> GetTrendingAsync()
         {
-            string trendingUrl = $"{BaseUrl}/manga?limit=24&order[followedCount]=desc";
+            string trendingUrl = $"{BaseUrl}/manga?limit=24&includes[]=cover_art&order[followedCount]=desc";
 
             var response = await _httpClient.GetAsync(trendingUrl);
             response.EnsureSuccessStatusCode();
 
             MangaDexComic[] trendingResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
 
-            var tasks = trendingResults.Select(async result =>
+            var comics = trendingResults.Select(result =>
             {
-                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Id is { } coverId ?
-                    await GetCoverUrl(result.Id, coverId) : null;
+                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
+                    ? GetCoverUrl(result.Id, coverAttributes) : null;
 
                 return new Comic(
                     Id: result.Id,
@@ -75,33 +77,34 @@ namespace Yukari.Plugin.MangaDex
                     CoverImageUrl: coverUrl,
                     Langs: []
                 );
-            });
+            }).ToList();
 
-            return (await Task.WhenAll(tasks)).ToList();
+            return comics;
         }
 
         public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language) => throw new NotImplementedException();
 
-        public async Task<string> GetAuthorName(string authorId)
+        public async Task<string> GetAuthorName(object authorAttributes)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/author/{authorId}");
-            response.EnsureSuccessStatusCode();
+            if (authorAttributes is JsonElement element)
+            {
+                return element.GetProperty("name").GetString();
+            }
 
-            Author authorData = (await response.Content.ReadFromJsonAsync<AuthorResponse>())?.Data;
-
-            return authorData.Attributes.Name;
+            throw new ArgumentException("Invalid attributes type");
         }
 
-        public async Task<string> GetCoverUrl(string mangaId, string coverId)
+        public string GetCoverUrl(string mangaId, object coverAttributes)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/cover/{coverId}");
-            response.EnsureSuccessStatusCode();
+            if (coverAttributes is JsonElement element)
+        {
+                var fileName = element.GetProperty("fileName").GetString();
+                return $"https://uploads.mangadex.org/covers/{mangaId}/{fileName}";
+            }
 
-            Cover coverData = (await response.Content.ReadFromJsonAsync<CoverResponse>())?.Data;
-
-            return $"https://uploads.mangadex.org/covers/{mangaId}/{coverData.Attributes.FileName}";
+            throw new ArgumentException("Invalid attributes type");
         }
 
         private static string GetLocalized(Dictionary<string, string> dict, string fallback = "Unknown") =>
