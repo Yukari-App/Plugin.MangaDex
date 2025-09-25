@@ -88,7 +88,7 @@ namespace Yukari.Plugin.MangaDex
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language) => throw new NotImplementedException();
 
-        public async Task<string> GetAuthorName(object authorAttributes)
+        public string GetAuthorName(object authorAttributes)
         {
             if (authorAttributes is JsonElement element)
             {
