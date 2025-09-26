@@ -14,7 +14,7 @@ namespace Yukari.Plugin.MangaDex
 
         public IReadOnlyList<Filter> Filters => [
                 new Filter(
-                        Key: "contentRating",
+                        Key: "contentRating[]",
                         DisplayName: "Age Rating",
                         Options: [
                                 new FilterOption("safe", "Safe"),
@@ -25,7 +25,7 @@ namespace Yukari.Plugin.MangaDex
                         AllowMultiple: true
                     ),
                 new Filter(
-                        Key: "status",
+                        Key: "status[]",
                         DisplayName: "Status",
                         Options: [
                                 new FilterOption("ongoing", "Ongoing"),
@@ -36,7 +36,7 @@ namespace Yukari.Plugin.MangaDex
                         AllowMultiple: true
                     ),
                 new Filter(
-                        Key: "publicationDemographic",
+                        Key: "publicationDemographic[]",
                         DisplayName: "Demographic",
                         Options: [
                                 new FilterOption("shounen", "Shounen"),
@@ -47,7 +47,7 @@ namespace Yukari.Plugin.MangaDex
                         AllowMultiple: true
                     ),
                 new Filter(
-                        Key: "includedTags",
+                        Key: "includedTags[]",
                         DisplayName: "Tags",
                         Options: [
                                 new FilterOption("b11fda93-8f1d-4bef-b2ed-8803d3733170", "4-Koma"),
@@ -66,7 +66,7 @@ namespace Yukari.Plugin.MangaDex
                         AllowMultiple: true
                     ),
                 new Filter(
-                        Key: "includedTags",
+                        Key: "includedTags[]",
                         DisplayName: "Genres",
                         Options: [
                                 new FilterOption("391b0423-d847-456f-aff0-8b0cfc03066b", "Action"),
@@ -119,7 +119,7 @@ namespace Yukari.Plugin.MangaDex
             foreach (var kvp in filters)
             {
                 foreach (var value in kvp.Value)
-                    queryParams.Add($"{kvp.Key}[]={Uri.EscapeDataString(value)}");
+                    queryParams.Add($"{kvp.Key}={Uri.EscapeDataString(value)}");
             }
 
             string searchUrl = $"{BaseUrl}/manga?{string.Join("&", queryParams)}";
