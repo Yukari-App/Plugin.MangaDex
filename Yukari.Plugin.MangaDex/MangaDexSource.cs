@@ -152,35 +152,11 @@ namespace Yukari.Plugin.MangaDex
             return comics;
         }
 
-        public async Task<List<Comic>> GetTrendingAsync()
+        public async Task<List<Comic>> GetTrendingAsync(Dictionary<string, List<string>> filters)
         {
-            string trendingUrl = $"{BaseUrl}/manga?limit=24&includes[]=cover_art&order[followedCount]=desc";
-
-            var response = await _httpClient.GetAsync(trendingUrl);
-            response.EnsureSuccessStatusCode();
-
-            MangaDexComic[] trendingResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
-
-            var comics = trendingResults.Select(result =>
-            {
-                var coverUrl = result.Relationships.FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
-                    ? GetCoverUrl(result.Id, coverAttributes) : null;
-
-                return new Comic(
-                    Id: result.Id,
-                    Source: Name,
-                    Slug: result.Id,
-                    Title: GetLocalized(result.Attributes.Title),
-                    Author: null,
-                    Description: null,
-                    Tags: [],
-                    Year: null,
-                    CoverImageUrl: coverUrl,
-                    Langs: []
-                );
-            }).ToList();
-
-            return comics;
+            filters.Add("order[followedCount]", ["desc"]);
+            
+            return await SearchAsync(string.Empty, filters);
         }
 
         public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
