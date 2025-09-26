@@ -159,7 +159,37 @@ namespace Yukari.Plugin.MangaDex
             return await SearchAsync(string.Empty, filters);
         }
 
-        public Task<Comic?> GetDetailsAsync(string mangaId) => throw new NotImplementedException();
+        public async Task<Comic?> GetDetailsAsync(string mangaId)
+        {
+            string detailsUrl = $"{BaseUrl}/manga/{mangaId}?includes[]=author&includes[]=cover_art";
+
+            var response = await _httpClient.GetAsync(detailsUrl);
+            response.EnsureSuccessStatusCode();
+
+            MangaDexComic DetailsResult = (await response.Content.ReadFromJsonAsync<DetailsResponse>())?.Data;
+
+            var author = DetailsResult.Relationships
+                    .FirstOrDefault(r => r.Type == "author")?.Attributes is { } authorAttributes
+                    ? GetAuthorName(authorAttributes) : null;
+
+            var coverUrl = DetailsResult.Relationships
+                    .FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
+                    ? GetCoverUrl(DetailsResult.Id, coverAttributes) : null;
+
+            return new Comic(
+                    Id: DetailsResult.Id,
+                    Source: Name,
+                    Slug: DetailsResult.Id,
+                    Title: GetLocalized(DetailsResult.Attributes.Title),
+                    Author: author,
+                    Description: GetLocalized(DetailsResult.Attributes.Description),
+                    Tags: DetailsResult.Attributes.Tags.Select(tag => GetLocalized(tag.Attributes.Name)).ToArray(),
+                    Year: DetailsResult.Attributes.Year,
+                    CoverImageUrl: coverUrl,
+                    Langs: DetailsResult.Attributes.Languages
+                );
+        }
+
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language) => throw new NotImplementedException();
 
