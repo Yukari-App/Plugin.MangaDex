@@ -98,6 +98,37 @@ namespace Yukari.Plugin.MangaDex
                     )
             ];
 
+        public IReadOnlyDictionary<string, string> Languages => new Dictionary<string, string>
+        {
+            { "en", "English" },
+            { "pt-br", "Português" },
+            { "es", "Español" },
+            { "es-la", "Español LA" },
+            { "fr", "Français" },
+            { "de", "Deutsch" },
+            { "it", "Italiano" },
+            { "ru", "Русский" },
+            { "pl", "Polski" },
+            { "id", "Bahasa Indonesia" },
+            { "vi", "Tiếng Việt" },
+            { "ar", "العربية" },
+            { "ja", "日本語" },
+            { "ja-ro", "日本語‑ro" },
+            { "ko", "한국어" },
+            { "ko-ro", "한국어‑ro" },
+            { "zh", "中文" },
+            { "zh-hk", "中文 HK" },
+            { "zh-ro", "中文‑ro" },
+            { "th", "ไทย" },
+            { "tr", "Türkçe" },
+            { "ms", "Bahasa Melayu" },
+            { "hi", "हिन्दी" },
+            { "ca", "Català" },
+            { "nl", "Nederlands" },
+            { "sv", "Svenska" },
+            { "fi", "Suomi" }
+        };
+
         private const string BaseUrl = "https://api.mangadex.org";
 
         private readonly HttpClient _httpClient = new HttpClient();
