@@ -7,7 +7,7 @@ namespace Yukari.Plugin.MangaDex.Data
             [property: JsonPropertyName("chapter")] string? Chapter,
             [property: JsonPropertyName("title")] string? Title,
             [property: JsonPropertyName("translatedLanguage")] string? Language,
-            [property: JsonPropertyName("updatedAt")] string UpdatedAt,
+            [property: JsonPropertyName("updatedAt")] DateTimeOffset UpdatedAt,
             [property: JsonPropertyName("pages")] int Pages,
             [property: JsonPropertyName("relationships")] Relationship[] Relationships
         );
