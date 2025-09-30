@@ -138,6 +138,7 @@ namespace Yukari.Plugin.MangaDex
                 return new Comic(
                     Id: result.Id,
                     Source: Name,
+                    ComicUrl: null,
                     Slug: result.Id,
                     Title: GetLocalized(result.Attributes.Title),
                     Author: null,
@@ -179,6 +180,7 @@ namespace Yukari.Plugin.MangaDex
             return new Comic(
                     Id: DetailsResult.Id,
                     Source: Name,
+                    ComicUrl: $"https://mangadex.org/title/{DetailsResult.Id}",
                     Slug: DetailsResult.Id,
                     Title: GetLocalized(DetailsResult.Attributes.Title),
                     Author: author,
