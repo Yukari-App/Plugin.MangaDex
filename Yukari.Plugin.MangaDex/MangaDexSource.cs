@@ -202,7 +202,7 @@ namespace Yukari.Plugin.MangaDex
 
             var author = DetailsResult.Relationships
                     .FirstOrDefault(r => r.Type == "author")?.Attributes is { } authorAttributes
-                    ? GetAuthorName(authorAttributes) : null;
+                    ? GetNameFromAttributes(authorAttributes) : null;
 
             var coverUrl = DetailsResult.Relationships
                     .FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
@@ -226,9 +226,9 @@ namespace Yukari.Plugin.MangaDex
         public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
         public ValueTask DisposeAsync() => throw new NotImplementedException();
 
-        public string GetAuthorName(object authorAttributes)
+        public string GetNameFromAttributes(object attributes)
         {
-            if (authorAttributes is JsonElement element)
+            if (attributes is JsonElement element)
             {
                 return element.GetProperty("name").GetString();
             }
