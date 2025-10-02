@@ -290,7 +290,11 @@ namespace Yukari.Plugin.MangaDex
             ).ToList();
         }
 
-        public ValueTask DisposeAsync() => throw new NotImplementedException();
+        public ValueTask DisposeAsync()
+        {
+            _httpClient.Dispose();
+            return ValueTask.CompletedTask;
+        }
 
         public string GetNameFromAttributes(object attributes)
         {
