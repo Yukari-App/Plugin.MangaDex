@@ -268,7 +268,28 @@ namespace Yukari.Plugin.MangaDex
             }).ToList();
         }
 
-        public Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId) => throw new NotImplementedException();
+        public async Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId)
+        {
+            string pagesUrl = $"{BaseUrl}/at-home/server/{chapterId}";
+
+            var response = await _httpClient.GetAsync(pagesUrl);
+            response.EnsureSuccessStatusCode();
+
+            PageResponse pageResponse = await response.Content.ReadFromJsonAsync<PageResponse>();
+            string[] data = pageResponse.ChapterPages.Data;
+            string baseUrl = pageResponse.BaseUrl;
+            string hash = pageResponse.ChapterPages.Hash;
+
+            return Enumerable.Range(0, data.Length)
+                .Select(i => new ChapterPage(
+                    Id: null,
+                    Source: Name,
+                    PageNumber: i + 1,
+                    ImageUrl: $"{baseUrl}/data/{hash}/{data[i]}"
+                )
+            ).ToList();
+        }
+
         public ValueTask DisposeAsync() => throw new NotImplementedException();
 
         public string GetNameFromAttributes(object attributes)
