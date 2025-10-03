@@ -9,6 +9,7 @@ namespace Yukari.Plugin.MangaDex
     public class MangaDexSource : IMangaSource
     {
         public string Name => "MangaDex";
+        public string Version => "1.0.0-beta.1+core0.13.0-alpha";
         public string? LogoUrl => "https://mangadex.org/img/brand/mangadex-logo.svg";
         public string? Description => "A community-driven manga database and reader.";
 
