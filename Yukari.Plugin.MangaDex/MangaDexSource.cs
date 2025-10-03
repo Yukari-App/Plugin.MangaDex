@@ -138,7 +138,7 @@ namespace Yukari.Plugin.MangaDex
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex");
         }
 
-        public async Task<List<Comic>> SearchAsync(string query, Dictionary<string, List<string>> filters)
+        public async Task<IReadOnlyList<Comic>> SearchAsync(string query, Dictionary<string, List<string>> filters)
         {
             var queryParams = new List<string>
             {
@@ -184,7 +184,7 @@ namespace Yukari.Plugin.MangaDex
             return comics;
         }
 
-        public async Task<List<Comic>> GetTrendingAsync(Dictionary<string, List<string>> filters)
+        public async Task<IReadOnlyList<Comic>> GetTrendingAsync(Dictionary<string, List<string>> filters)
         {
             filters.Add("order[followedCount]", ["desc"]);
             
@@ -223,7 +223,7 @@ namespace Yukari.Plugin.MangaDex
                 );
         }
 
-        public async Task<List<Chapter>> GetAllChaptersAsync(string mangaId, string language)
+        public async Task<IReadOnlyList<Chapter>> GetAllChaptersAsync(string mangaId, string language)
         {
             const int limit = 250;
 
@@ -268,7 +268,7 @@ namespace Yukari.Plugin.MangaDex
             }).ToList();
         }
 
-        public async Task<List<ChapterPage>> GetChapterPagesAsync(string chapterId)
+        public async Task<IReadOnlyList<ChapterPage>> GetChapterPagesAsync(string chapterId)
         {
             string pagesUrl = $"{BaseUrl}/at-home/server/{chapterId}";
 
