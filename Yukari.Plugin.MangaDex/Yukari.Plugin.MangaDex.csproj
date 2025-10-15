@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Yukari.Core" Version="0.13.0-alpha" />
+    <PackageReference Include="Yukari.Core" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
