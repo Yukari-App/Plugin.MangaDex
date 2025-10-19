@@ -139,7 +139,7 @@ namespace Yukari.Plugin.MangaDex
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex");
         }
 
-        public async Task<IReadOnlyList<Comic>> SearchAsync(string query, Dictionary<string, List<string>> filters)
+        public async Task<IReadOnlyList<Comic>> SearchAsync(string query, Dictionary<string, IReadOnlyList<string>> filters)
         {
             var queryParams = new List<string>
             {
@@ -185,7 +185,7 @@ namespace Yukari.Plugin.MangaDex
             return comics;
         }
 
-        public async Task<IReadOnlyList<Comic>> GetTrendingAsync(Dictionary<string, List<string>> filters)
+        public async Task<IReadOnlyList<Comic>> GetTrendingAsync(Dictionary<string, IReadOnlyList<string>> filters)
         {
             filters.Add("order[followedCount]", ["desc"]);
             
