@@ -308,7 +308,7 @@ namespace Yukari.Plugin.MangaDex
             return ValueTask.CompletedTask;
         }
 
-        public string GetNameFromAttributes(object attributes)
+        private string GetNameFromAttributes(object attributes)
         {
             if (attributes is JsonElement element)
             {
@@ -318,7 +318,7 @@ namespace Yukari.Plugin.MangaDex
             throw new ArgumentException("Invalid attributes type");
         }
 
-        public string GetCoverUrl(string mangaId, object coverAttributes)
+        private string GetCoverUrl(string mangaId, object coverAttributes)
         {
             if (coverAttributes is JsonElement element)
             {
