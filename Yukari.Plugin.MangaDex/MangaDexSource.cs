@@ -313,9 +313,13 @@ namespace Yukari.Plugin.MangaDex
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<T>();
-            }
+        }
 
-            throw new ArgumentException("Invalid attributes type");
+        private string? GetNameFromAttributes(object attributes)
+        {
+            if (attributes is JsonElement element && element.TryGetProperty("name", out var nameProp))
+                return nameProp.GetString();
+            return null;
         }
 
         private string GetCoverUrl(string mangaId, object coverAttributes)
@@ -326,7 +330,7 @@ namespace Yukari.Plugin.MangaDex
                 return $"https://uploads.mangadex.org/covers/{mangaId}/{fileName}";
             }
 
-            throw new ArgumentException("Invalid attributes type");
+            return string.Empty;
         }
 
         private static string GetLocalized(Dictionary<string, string> dict, string fallback = "Unknown") =>
