@@ -204,28 +204,28 @@ namespace Yukari.Plugin.MangaDex
             var response = await _httpClient.GetAsync(detailsUrl);
             response.EnsureSuccessStatusCode();
 
-            MangaDexComic DetailsResult = (await response.Content.ReadFromJsonAsync<DetailsResponse>())?.Data;
+            MangaDexComic? detailsResult = (await response.Content.ReadFromJsonAsync<DetailsResponse>())?.Data;
 
-            var author = DetailsResult.Relationships
+            var author = detailsResult.Relationships
                     .FirstOrDefault(r => r.Type == "author")?.Attributes is { } authorAttributes
                     ? GetNameFromAttributes(authorAttributes) : null;
 
-            var coverUrl = DetailsResult.Relationships
+            var coverUrl = detailsResult.Relationships
                     .FirstOrDefault(r => r.Type == "cover_art")?.Attributes is { } coverAttributes
-                    ? GetCoverUrl(DetailsResult.Id, coverAttributes) : null;
+                    ? GetCoverUrl(detailsResult.Id, coverAttributes) : null;
 
             return new Comic(
-                    Id: DetailsResult.Id,
+                    Id: detailsResult.Id,
                     Source: Name,
-                    ComicUrl: $"https://mangadex.org/title/{DetailsResult.Id}",
-                    Slug: DetailsResult.Id,
-                    Title: GetLocalized(DetailsResult.Attributes.Title),
+                    ComicUrl: $"https://mangadex.org/title/{detailsResult.Id}",
+                    Slug: detailsResult.Id,
+                    Title: GetLocalized(detailsResult.Attributes.Title),
                     Author: author,
-                    Description: GetLocalized(DetailsResult.Attributes.Description),
-                    Tags: DetailsResult.Attributes.Tags.Select(tag => GetLocalized(tag.Attributes.Name)).ToArray(),
-                    Year: DetailsResult.Attributes.Year,
+                    Description: GetLocalized(detailsResult.Attributes.Description),
+                    Tags: detailsResult.Attributes.Tags.Select(tag => GetLocalized(tag.Attributes.Name)).ToArray(),
+                    Year: detailsResult.Attributes.Year,
                     CoverImageUrl: coverUrl,
-                    Langs: DetailsResult.Attributes.Languages
+                    Langs: detailsResult.Attributes.Languages
                 );
         }
 
