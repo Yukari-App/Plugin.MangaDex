@@ -202,9 +202,15 @@ namespace Yukari.Plugin.MangaDex
             string detailsUrl = $"{BaseUrl}/manga/{mangaId}?includes[]=author&includes[]=cover_art";
 
             var response = await _httpClient.GetAsync(detailsUrl);
+
+            if (response.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+                return null;
             response.EnsureSuccessStatusCode();
 
             MangaDexComic? detailsResult = (await response.Content.ReadFromJsonAsync<DetailsResponse>())?.Data;
+
+            if (detailsResult is null)
+                return null;
 
             var author = detailsResult.Relationships
                     .FirstOrDefault(r => r.Type == "author")?.Attributes is { } authorAttributes
