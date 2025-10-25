@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Yukari.Core.Models;
@@ -156,10 +157,10 @@ namespace Yukari.Plugin.MangaDex
 
             string searchUrl = $"{BaseUrl}/manga?{string.Join("&", queryParams)}";
 
-            var response = await _httpClient.GetAsync(searchUrl);
-            response.EnsureSuccessStatusCode();
+            MangaDexComic[]? searchResults = (await GetFromApiAsync<SearchResponse>(searchUrl))?.Data;
 
-            MangaDexComic[] searchResults = (await response.Content.ReadFromJsonAsync<SearchResponse>())?.Data;
+            if (searchResults is not { Length: > 0 })
+                return Array.Empty<Comic>();
 
             var comics = searchResults.Select(result =>
             {
@@ -201,13 +202,7 @@ namespace Yukari.Plugin.MangaDex
         {
             string detailsUrl = $"{BaseUrl}/manga/{mangaId}?includes[]=author&includes[]=cover_art";
 
-            var response = await _httpClient.GetAsync(detailsUrl);
-
-            if (response.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
-                return null;
-            response.EnsureSuccessStatusCode();
-
-            MangaDexComic? detailsResult = (await response.Content.ReadFromJsonAsync<DetailsResponse>())?.Data;
+            MangaDexComic? detailsResult = (await GetFromApiAsync<DetailsResponse>(detailsUrl))?.Data;
 
             if (detailsResult is null)
                 return null;
@@ -246,10 +241,10 @@ namespace Yukari.Plugin.MangaDex
             {
                 string chaptersUrl = $"{BaseUrl}/manga/{mangaId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
 
-                var response = await _httpClient.GetAsync(chaptersUrl);
-                response.EnsureSuccessStatusCode();
+                ChapterResponse? chapterResponse = await GetFromApiAsync<ChapterResponse>(chaptersUrl);
 
-                ChapterResponse chapterResponse = await response.Content.ReadFromJsonAsync<ChapterResponse>();
+                if (chapterResponse == null )
+                    return new List<Chapter>();
 
                 if (chapterResponse?.Data is { Length: > 0 } data)
                     chapterResults.AddRange(data);
@@ -284,10 +279,11 @@ namespace Yukari.Plugin.MangaDex
         {
             string pagesUrl = $"{BaseUrl}/at-home/server/{chapterId}";
 
-            var response = await _httpClient.GetAsync(pagesUrl);
-            response.EnsureSuccessStatusCode();
+            PageResponse? pageResponse = await GetFromApiAsync<PageResponse>(pagesUrl);
 
-            PageResponse pageResponse = await response.Content.ReadFromJsonAsync<PageResponse>();
+            if (pageResponse is null)
+                return [];
+
             string[] data = pageResponse.ChapterPages.Data;
             string baseUrl = pageResponse.BaseUrl;
             string hash = pageResponse.ChapterPages.Hash;
@@ -308,11 +304,15 @@ namespace Yukari.Plugin.MangaDex
             return ValueTask.CompletedTask;
         }
 
-        private string GetNameFromAttributes(object attributes)
+        private async Task<T?> GetFromApiAsync<T>(string url)
         {
-            if (attributes is JsonElement element)
-            {
-                return element.GetProperty("name").GetString();
+            var response = await _httpClient.GetAsync(url);
+
+            if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound)
+                return default;
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<T>();
             }
 
             throw new ArgumentException("Invalid attributes type");
