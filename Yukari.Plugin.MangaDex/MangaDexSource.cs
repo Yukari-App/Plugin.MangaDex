@@ -53,7 +53,7 @@ namespace Yukari.Plugin.MangaDex
                 AllowMultiple: true
             ),
             new Filter(
-                Key: "includedTags[]",
+                Key: "tags",
                 DisplayName: "Tags",
                 Options: [
                     new FilterOption("b11fda93-8f1d-4bef-b2ed-8803d3733170", "4-Koma"),
@@ -72,7 +72,7 @@ namespace Yukari.Plugin.MangaDex
                 AllowMultiple: true
             ),
             new Filter(
-                Key: "includedTags[]",
+                Key: "genres",
                 DisplayName: "Genres",
                 Options: [
                     new FilterOption("391b0423-d847-456f-aff0-8b0cfc03066b", "Action"),
@@ -155,8 +155,14 @@ namespace Yukari.Plugin.MangaDex
 
             foreach (var kvp in filters)
             {
+                string apiKey = kvp.Key switch
+                {
+                    "tags" or "genres" => "includedTags[]",
+                    _ => kvp.Key
+                };
+
                 foreach (var value in kvp.Value)
-                    queryParams.Add($"{kvp.Key}={Uri.EscapeDataString(value)}");
+                    queryParams.Add($"{apiKey}={Uri.EscapeDataString(value)}");
             }
 
             string searchUrl = $"{BaseUrl}/manga?{string.Join("&", queryParams)}";
