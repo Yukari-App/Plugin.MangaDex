@@ -14,7 +14,11 @@ namespace Yukari.Plugin.MangaDex
         public string? LogoUrl => "https://mangadex.org/img/brand/mangadex-logo.svg";
         public string? Description => "A community-driven manga database and reader.";
 
-        public IReadOnlyList<Filter> Filters => [
+        private static IReadOnlyList<Filter>? _filters;
+
+        private static IReadOnlyDictionary<string, string>? _languages; 
+
+        public IReadOnlyList<Filter> Filters => _filters ??= [
             new Filter(
                 Key: "contentRating[]",
                 DisplayName: "Age Rating",
@@ -100,7 +104,7 @@ namespace Yukari.Plugin.MangaDex
             )
         ];
 
-        public IReadOnlyDictionary<string, string> Languages => new Dictionary<string, string>
+        public IReadOnlyDictionary<string, string> Languages => _languages ??= new Dictionary<string, string>
         {
             { "en", "English" },
             { "pt-br", "Português" },
