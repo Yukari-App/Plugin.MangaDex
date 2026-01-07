@@ -137,11 +137,11 @@ namespace Yukari.Plugin.MangaDex
 
         private const string BaseUrl = "https://api.mangadex.org";
 
-        private readonly HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient _httpClient = new HttpClient();
 
-        public MangaDexSource()
+        static MangaDexSource()
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/1.2");
         }
 
         public async Task<IReadOnlyList<Comic>> SearchAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
@@ -304,7 +304,6 @@ namespace Yukari.Plugin.MangaDex
 
         public ValueTask DisposeAsync()
         {
-            _httpClient.Dispose();
             return ValueTask.CompletedTask;
         }
 
