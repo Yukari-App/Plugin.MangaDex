@@ -236,7 +236,7 @@ namespace Yukari.Plugin.MangaDex
 
         public async Task<IReadOnlyList<Chapter>> GetAllChaptersAsync(string mangaId, string language)
         {
-            const int limit = 250;
+            const int limit = 500;
 
             List<MangaDexChapter> chapterResults = new();
             int offset = 0;
@@ -257,6 +257,7 @@ namespace Yukari.Plugin.MangaDex
                 if (chapterResults.Count >= chapterResponse.Total) break;
 
                 offset += limit;
+                await Task.Delay(200);
             }
 
             return chapterResults.Select(result =>
@@ -311,8 +312,12 @@ namespace Yukari.Plugin.MangaDex
         {
             var response = await _httpClient.GetAsync(url);
 
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                throw new HttpRequestException("MangaDex Rate Limit Exceeded. Try again later.", null, HttpStatusCode.TooManyRequests);
+
             if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound)
                 return default;
+
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<T>();
