@@ -255,16 +255,16 @@ namespace Yukari.Plugin.MangaDex
                 ct.ThrowIfCancellationRequested();
                 string chaptersUrl = $"{BaseUrl}/manga/{comicId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
 
-                ChapterResponse? chapterResponse = await GetFromApiAsync<ChapterResponse>(chaptersUrl, ct);
+                ChaptersCollectionResponse? chaptersResponse = await GetFromApiAsync<ChaptersCollectionResponse>(chaptersUrl, ct);
 
-                if (chapterResponse == null )
+                if (chaptersResponse == null )
                     return new List<Chapter>();
 
-                if (chapterResponse?.Data is { Length: > 0 } data)
+                if (chaptersResponse?.Data is { Length: > 0 } data)
                     chapterResults.AddRange(data);
                 else break;
 
-                if (chapterResults.Count >= chapterResponse.Total) break;
+                if (chapterResults.Count >= chaptersResponse.Total) break;
 
                 offset += limit;
                 await Task.Delay(200, ct);
