@@ -324,14 +324,17 @@ namespace Yukari.Plugin.MangaDex
             string baseUrl = pageResponse.BaseUrl;
             string hash = pageResponse.ChapterPages.Hash;
 
-            return Enumerable.Range(0, data.Length)
-                .Select(i => new ChapterPage(
+            var pages = new List<ChapterPage>(data.Length);
+            for (int i = 0; i < data.Length; i++)
+            {
+                pages.Add(new ChapterPage(
                     Id: null,
                     Source: Name,
                     PageNumber: i + 1,
                     ImageUrl: $"{baseUrl}/data/{hash}/{data[i]}"
-                )
-            ).ToList();
+                ));
+            }
+            return pages;
         }
 
         public ValueTask DisposeAsync()
