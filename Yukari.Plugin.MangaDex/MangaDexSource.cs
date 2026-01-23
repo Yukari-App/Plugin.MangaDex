@@ -167,7 +167,7 @@ namespace Yukari.Plugin.MangaDex
 
             string searchUrl = $"{BaseUrl}/manga?{string.Join("&", queryParams)}";
 
-            MangaDexComic[]? searchResults = (await GetFromApiAsync<SearchResponse>(searchUrl))?.Data;
+            MangaDexComic[]? searchResults = (await GetFromApiAsync<SearchResponse>(searchUrl, ct))?.Data;
 
             if (searchResults is not { Length: > 0 })
                 return Array.Empty<Comic>();
@@ -198,21 +198,19 @@ namespace Yukari.Plugin.MangaDex
 
         public async Task<IReadOnlyList<Comic>> GetTrendingAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters, CancellationToken ct = default)
         {
-            var filtersCopy = filters.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.ToList() as IReadOnlyList<string>
-            );
+            var trendingFilters = new Dictionary<string, IReadOnlyList<string>>(filters)
+            {
+                ["order[followedCount]"] = ["desc"]
+            };
 
-            filtersCopy["order[followedCount]"] = [ "desc" ];
-
-            return await SearchAsync(string.Empty, filtersCopy);
+            return await SearchAsync(string.Empty, trendingFilters, ct);
         }
 
         public async Task<Comic?> GetDetailsAsync(string comicId, CancellationToken ct = default)
         {
             string detailsUrl = $"{BaseUrl}/manga/{comicId}?includes[]=author&includes[]=cover_art";
 
-            MangaDexComic? detailsResult = (await GetFromApiAsync<DetailsResponse>(detailsUrl))?.Data;
+            MangaDexComic? detailsResult = (await GetFromApiAsync<DetailsResponse>(detailsUrl, ct))?.Data;
 
             if (detailsResult is null)
                 return null;
@@ -254,9 +252,10 @@ namespace Yukari.Plugin.MangaDex
 
             while (true)
             {
+                ct.ThrowIfCancellationRequested();
                 string chaptersUrl = $"{BaseUrl}/manga/{comicId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
 
-                ChapterResponse? chapterResponse = await GetFromApiAsync<ChapterResponse>(chaptersUrl);
+                ChapterResponse? chapterResponse = await GetFromApiAsync<ChapterResponse>(chaptersUrl, ct);
 
                 if (chapterResponse == null )
                     return new List<Chapter>();
@@ -268,7 +267,7 @@ namespace Yukari.Plugin.MangaDex
                 if (chapterResults.Count >= chapterResponse.Total) break;
 
                 offset += limit;
-                await Task.Delay(200);
+                await Task.Delay(200, ct);
             }
 
             return chapterResults.Select(result =>
@@ -295,7 +294,7 @@ namespace Yukari.Plugin.MangaDex
         {
             string pagesUrl = $"{BaseUrl}/at-home/server/{chapterId}";
 
-            PageResponse? pageResponse = await GetFromApiAsync<PageResponse>(pagesUrl);
+            PageResponse? pageResponse = await GetFromApiAsync<PageResponse>(pagesUrl, ct);
 
             if (pageResponse is null)
                 return [];
@@ -321,7 +320,7 @@ namespace Yukari.Plugin.MangaDex
 
         private async Task<T?> GetFromApiAsync<T>(string url, CancellationToken ct = default)
         {
-            var response = await _httpClient.GetAsync(url);
+            using var response = await _httpClient.GetAsync(url, ct);
 
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 throw new HttpRequestException("MangaDex Rate Limit Exceeded. Try again later.", null, HttpStatusCode.TooManyRequests);
@@ -331,7 +330,7 @@ namespace Yukari.Plugin.MangaDex
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<T>();
+            return await response.Content.ReadFromJsonAsync<T>(ct);
         }
 
         private string? GetNameFromAttributes(object attributes)
