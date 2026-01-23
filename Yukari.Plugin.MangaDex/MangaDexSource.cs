@@ -10,7 +10,7 @@ namespace Yukari.Plugin.MangaDex
     public class MangaDexSource : IComicSource
     {
         public string Name => "MangaDex";
-        public string Version => "1.2.3+core1.2.0";
+        public string Version => "1.4.0+core1.4.0";
         public string? LogoUrl => "https://mangadex.org/img/brand/mangadex-logo.svg";
         public string? Description => "A community-driven manga database and reader.";
 
@@ -141,7 +141,7 @@ namespace Yukari.Plugin.MangaDex
 
         static MangaDexSource()
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/1.2");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/1.4");
         }
 
         public async Task<IReadOnlyList<Comic>> SearchAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters, CancellationToken ct = default)
