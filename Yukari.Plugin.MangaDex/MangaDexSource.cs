@@ -238,9 +238,30 @@ namespace Yukari.Plugin.MangaDex
                 );
         }
 
-        public Task<Chapter?> GetChapterDetailsAsync(string comicId, string chapterId, CancellationToken ct = default)
+        public async Task<Chapter?> GetChapterDetailsAsync(string comicId, string chapterId, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            string url = $"{BaseUrl}/chapter/{chapterId}?includes[]=scanlation_group";
+
+            var response = await GetFromApiAsync<ChapterEntityResponse>(url, ct);
+            var result = response?.Data;
+
+            if (result == null) return null;
+
+            var group = result.Relationships
+                .FirstOrDefault(r => r.Type == "scanlation_group")?.Attributes is { } groupAttributes
+                ? GetNameFromAttributes(groupAttributes) : null;
+
+            return new Chapter(
+                Id: result.Id,
+                Source: Name,
+                Title: result.Attributes.Title,
+                Number: result.Attributes.Chapter,
+                Volume: result.Attributes.Volume,
+                Language: result.Attributes.Language,
+                Groups: group,
+                LastUpdate: DateOnly.FromDateTime(result.Attributes.UpdatedAt.DateTime),
+                Pages: result.Attributes.Pages
+            );
         }
 
         public async Task<IReadOnlyList<Chapter>> GetAllChaptersAsync(string comicId, string language, CancellationToken ct = default)
