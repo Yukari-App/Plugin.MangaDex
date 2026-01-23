@@ -144,7 +144,7 @@ namespace Yukari.Plugin.MangaDex
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/1.2");
         }
 
-        public async Task<IReadOnlyList<Comic>> SearchAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
+        public async Task<IReadOnlyList<Comic>> SearchAsync(string query, IReadOnlyDictionary<string, IReadOnlyList<string>> filters, CancellationToken ct = default)
         {
             var queryParams = new List<string>
             {
@@ -196,7 +196,7 @@ namespace Yukari.Plugin.MangaDex
             return comics;
         }
 
-        public async Task<IReadOnlyList<Comic>> GetTrendingAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters)
+        public async Task<IReadOnlyList<Comic>> GetTrendingAsync(IReadOnlyDictionary<string, IReadOnlyList<string>> filters, CancellationToken ct = default)
         {
             var filtersCopy = filters.ToDictionary(
                 kvp => kvp.Key,
@@ -208,9 +208,9 @@ namespace Yukari.Plugin.MangaDex
             return await SearchAsync(string.Empty, filtersCopy);
         }
 
-        public async Task<Comic?> GetDetailsAsync(string mangaId)
+        public async Task<Comic?> GetDetailsAsync(string comicId, CancellationToken ct = default)
         {
-            string detailsUrl = $"{BaseUrl}/manga/{mangaId}?includes[]=author&includes[]=cover_art";
+            string detailsUrl = $"{BaseUrl}/manga/{comicId}?includes[]=author&includes[]=cover_art";
 
             MangaDexComic? detailsResult = (await GetFromApiAsync<DetailsResponse>(detailsUrl))?.Data;
 
@@ -240,7 +240,12 @@ namespace Yukari.Plugin.MangaDex
                 );
         }
 
-        public async Task<IReadOnlyList<Chapter>> GetAllChaptersAsync(string mangaId, string language)
+        public Task<Chapter?> GetChapterDetailsAsync(string comicId, string chapterId, CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IReadOnlyList<Chapter>> GetAllChaptersAsync(string comicId, string language, CancellationToken ct = default)
         {
             const int limit = 500;
 
@@ -249,7 +254,7 @@ namespace Yukari.Plugin.MangaDex
 
             while (true)
             {
-                string chaptersUrl = $"{BaseUrl}/manga/{mangaId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
+                string chaptersUrl = $"{BaseUrl}/manga/{comicId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
 
                 ChapterResponse? chapterResponse = await GetFromApiAsync<ChapterResponse>(chaptersUrl);
 
@@ -286,7 +291,7 @@ namespace Yukari.Plugin.MangaDex
             }).ToList();
         }
 
-        public async Task<IReadOnlyList<ChapterPage>> GetChapterPagesAsync(string chapterId)
+        public async Task<IReadOnlyList<ChapterPage>> GetChapterPagesAsync(string comicId, string chapterId, CancellationToken ct = default)
         {
             string pagesUrl = $"{BaseUrl}/at-home/server/{chapterId}";
 
@@ -314,7 +319,7 @@ namespace Yukari.Plugin.MangaDex
             return ValueTask.CompletedTask;
         }
 
-        private async Task<T?> GetFromApiAsync<T>(string url)
+        private async Task<T?> GetFromApiAsync<T>(string url, CancellationToken ct = default)
         {
             var response = await _httpClient.GetAsync(url);
 
@@ -336,12 +341,12 @@ namespace Yukari.Plugin.MangaDex
             return null;
         }
 
-        private string GetCoverUrl(string mangaId, object coverAttributes)
+        private string GetCoverUrl(string comicId, object coverAttributes)
         {
             if (coverAttributes is JsonElement element)
             {
                 var fileName = element.GetProperty("fileName").GetString();
-                return $"https://uploads.mangadex.org/covers/{mangaId}/{fileName}";
+                return $"https://uploads.mangadex.org/covers/{comicId}/{fileName}";
             }
 
             return string.Empty;
