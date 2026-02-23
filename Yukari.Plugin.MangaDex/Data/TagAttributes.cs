@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Yukari.Plugin.MangaDex.Data
 {
     internal record TagAttributes(
-            [property: JsonPropertyName("name")] Dictionary<string, string> Name
-        );
+        [property: JsonPropertyName("name")] Dictionary<string, string> Name
+    );
 }
