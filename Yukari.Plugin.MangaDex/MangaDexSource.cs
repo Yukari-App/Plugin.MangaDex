@@ -7,12 +7,15 @@ using Yukari.Plugin.MangaDex.Data;
 
 namespace Yukari.Plugin.MangaDex
 {
+    [ComicSourceMetadata(
+        "MangaDex",
+        "1.5.0+core1.5.0",
+        "https://mangadex.org/img/brand/mangadex-logo.svg",
+        "A community-driven manga database and reader."
+    )]
     public class MangaDexSource : IComicSource
     {
-        public string Name => "MangaDex";
-        public string Version => "1.4.0+core1.4.0";
-        public string? LogoUrl => "https://mangadex.org/img/brand/mangadex-logo.svg";
-        public string? Description => "A community-driven manga database and reader.";
+        private const string Name = "MangaDex";
 
         private static IReadOnlyList<Filter>? _filters;
 
