@@ -322,8 +322,18 @@ namespace Yukari.Plugin.MangaDex
             while (true)
             {
                 ct.ThrowIfCancellationRequested();
-                string chaptersUrl =
-                    $"{BaseUrl}/manga/{comicId}/feed?limit={limit}&offset={offset}&order[chapter]=asc&includeEmptyPages=0&translatedLanguage[]={language}&includes[]=scanlation_group";
+
+                var queryParams = new Dictionary<string, string[]>
+                {
+                    ["limit"] = [limit.ToString()],
+                    ["offset"] = [offset.ToString()],
+                    ["order[chapter]"] = ["asc"],
+                    ["includeEmptyPages"] = ["0"],
+                    ["translatedLanguage[]"] = [language],
+                    ["includes[]"] = ["scanlation_group"],
+                    ["contentRating[]"] = ["safe", "suggestive", "erotica", "pornographic"],
+                };
+                string chaptersUrl = $"{BaseUrl}/manga/{comicId}/feed?{ToQueryString(queryParams)}";
 
                 ChaptersCollectionResponse? chaptersResponse =
                     await GetFromApiAsync<ChaptersCollectionResponse>(chaptersUrl, ct);
