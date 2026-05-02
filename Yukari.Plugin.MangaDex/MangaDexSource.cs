@@ -163,11 +163,11 @@ namespace Yukari.Plugin.MangaDex
             CancellationToken ct = default
         )
         {
-            var queryParams = new List<string>
+            var queryParams = new Dictionary<string, string[]>
             {
-                $"limit=24",
-                $"includes[]=cover_art",
-                $"title={Uri.EscapeDataString(query)}",
+                ["limit"] = ["24"],
+                ["includes[]"] = ["cover_art"],
+                ["title"] = [query],
             };
 
             foreach (var kvp in filters)
@@ -178,11 +178,10 @@ namespace Yukari.Plugin.MangaDex
                     _ => kvp.Key,
                 };
 
-                foreach (var value in kvp.Value)
-                    queryParams.Add($"{apiKey}={Uri.EscapeDataString(value)}");
+                queryParams[apiKey] = kvp.Value.ToArray();
             }
 
-            string searchUrl = $"{BaseUrl}/manga?{string.Join("&", queryParams)}";
+            string searchUrl = $"{BaseUrl}/manga?{ToQueryString(queryParams)}";
 
             MangaDexComic[]? searchResults = (
                 await GetFromApiAsync<SearchResponse>(searchUrl, ct)
@@ -453,5 +452,15 @@ namespace Yukari.Plugin.MangaDex
             dict.TryGetValue("en", out var value)
                 ? value
                 : dict.Values.FirstOrDefault() ?? fallback;
+
+        private static string ToQueryString(Dictionary<string, string[]> source) =>
+            string.Join(
+                "&",
+                source.SelectMany(kvp =>
+                    kvp.Value.Select(v =>
+                        $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(v)}"
+                    )
+                )
+            );
     }
 }
