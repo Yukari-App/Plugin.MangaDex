@@ -204,7 +204,7 @@ namespace Yukari.Plugin.MangaDex
                     return new Comic(
                         Id: result.Id,
                         ComicUrl: null,
-                        Slug: result.Id,
+                        Slug: null,
                         Title: GetLocalized(result.Attributes.Title),
                         Author: null,
                         Description: null,
@@ -260,7 +260,7 @@ namespace Yukari.Plugin.MangaDex
             return new Comic(
                 Id: detailsResult.Id,
                 ComicUrl: $"https://mangadex.org/title/{detailsResult.Id}",
-                Slug: detailsResult.Id,
+                Slug: null,
                 Title: GetLocalized(detailsResult.Attributes.Title),
                 Author: author,
                 Description: GetLocalizedOrNull(detailsResult.Attributes.Description),
@@ -389,7 +389,7 @@ namespace Yukari.Plugin.MangaDex
             PageResponse? pageResponse = await GetFromApiAsync<PageResponse>(pagesUrl, ct);
 
             if (pageResponse is null)
-                return [];
+                return new List<ChapterPage>();
 
             string[] data = pageResponse.ChapterPages.Data;
             string baseUrl = pageResponse.BaseUrl;
