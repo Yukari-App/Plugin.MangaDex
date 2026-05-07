@@ -202,7 +202,6 @@ namespace Yukari.Plugin.MangaDex
 
                     return new Comic(
                         Id: result.Id,
-                        Source: Name,
                         ComicUrl: null,
                         Slug: result.Id,
                         Title: GetLocalized(result.Attributes.Title),
@@ -259,7 +258,6 @@ namespace Yukari.Plugin.MangaDex
 
             return new Comic(
                 Id: detailsResult.Id,
-                Source: Name,
                 ComicUrl: $"https://mangadex.org/title/{detailsResult.Id}",
                 Slug: detailsResult.Id,
                 Title: GetLocalized(detailsResult.Attributes.Title),
@@ -365,7 +363,6 @@ namespace Yukari.Plugin.MangaDex
 
                     return new Chapter(
                         Id: result.Id,
-                        Source: Name,
                         Title: result.Attributes.Title,
                         Number: result.Attributes.Chapter,
                         Volume: result.Attributes.Volume,
@@ -399,12 +396,7 @@ namespace Yukari.Plugin.MangaDex
             for (int i = 0; i < data.Length; i++)
             {
                 pages.Add(
-                    new ChapterPage(
-                        Id: null,
-                        Source: Name,
-                        PageNumber: i + 1,
-                        ImageUrl: $"{baseUrl}/data/{hash}/{data[i]}"
-                    )
+                    new ChapterPage(Number: i + 1, ImageUrl: $"{baseUrl}/data/{hash}/{data[i]}")
                 );
             }
             return pages;
