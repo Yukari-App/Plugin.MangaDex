@@ -263,7 +263,7 @@ namespace Yukari.Plugin.MangaDex
                 Slug: detailsResult.Id,
                 Title: GetLocalized(detailsResult.Attributes.Title),
                 Author: author,
-                Description: GetLocalized(detailsResult.Attributes.Description),
+                Description: GetLocalizedOrNull(detailsResult.Attributes.Description),
                 Tags: detailsResult
                     .Attributes.Tags.Select(tag => GetLocalized(tag.Attributes.Name))
                     .ToArray(),
@@ -448,13 +448,11 @@ namespace Yukari.Plugin.MangaDex
             return null;
         }
 
-        private static string GetLocalized(
-            Dictionary<string, string> dict,
-            string fallback = "Unknown"
-        ) =>
-            dict.TryGetValue("en", out var value)
-                ? value
-                : dict.Values.FirstOrDefault() ?? fallback;
+        private static string? GetLocalizedOrNull(Dictionary<string, string> dict) =>
+            dict.TryGetValue("en", out var value) ? value : dict.Values.FirstOrDefault();
+
+        private static string GetLocalized(Dictionary<string, string> dict) =>
+            GetLocalizedOrNull(dict) ?? "Unknown";
 
         private static string ToQueryString(Dictionary<string, string[]> source) =>
             string.Join(
