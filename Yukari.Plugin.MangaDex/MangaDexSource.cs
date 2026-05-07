@@ -437,7 +437,7 @@ namespace Yukari.Plugin.MangaDex
             return null;
         }
 
-        private string GetCoverUrl(string comicId, object coverAttributes)
+        private string? GetCoverUrl(string comicId, object coverAttributes)
         {
             if (coverAttributes is JsonElement element)
             {
@@ -445,7 +445,7 @@ namespace Yukari.Plugin.MangaDex
                 return $"https://uploads.mangadex.org/covers/{comicId}/{fileName}";
             }
 
-            return string.Empty;
+            return null;
         }
 
         private static string GetLocalized(
