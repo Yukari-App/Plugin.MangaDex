@@ -355,12 +355,14 @@ namespace Yukari.Plugin.MangaDex
             return chapterResults
                 .Select(result =>
                 {
-                    var group = result
-                        .Relationships.FirstOrDefault(r => r.Type == "scanlation_group")
-                        ?.Attributes
-                        is { } groupAttributes
-                        ? GetNameFromAttributes(groupAttributes)
-                        : null;
+                    var groups = result
+                        .Relationships.Where(r => r.Type == "scanlation_group")
+                        .Select(r =>
+                            r.Attributes is { } attrs ? GetNameFromAttributes(attrs) : null
+                        )
+                        .Where(name => name != null)
+                        .Select(name => name!)
+                        .ToArray();
 
                     return new Chapter(
                         Id: result.Id,
@@ -368,7 +370,7 @@ namespace Yukari.Plugin.MangaDex
                         Number: result.Attributes.Chapter,
                         Volume: result.Attributes.Volume,
                         Language: result.Attributes.Language,
-                        Groups: group,
+                        Groups: groups,
                         LastUpdate: DateOnly.FromDateTime(result.Attributes.UpdatedAt.DateTime),
                         Pages: result.Attributes.Pages
                     );
