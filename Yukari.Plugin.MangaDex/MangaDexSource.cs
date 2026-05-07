@@ -15,10 +15,9 @@ namespace Yukari.Plugin.MangaDex
     )]
     public class MangaDexSource : IComicSource
     {
-        private const string Name = "MangaDex";
+        private const int DefaultPageSize = 24;
 
         private static IReadOnlyList<Filter>? _filters;
-
         private static IReadOnlyDictionary<string, string>? _languages;
 
         public IReadOnlyList<Filter> Filters =>
@@ -160,12 +159,14 @@ namespace Yukari.Plugin.MangaDex
         public async Task<IReadOnlyList<Comic>> SearchAsync(
             string query,
             IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            int page = 1,
             CancellationToken ct = default
         )
         {
             var queryParams = new Dictionary<string, string[]>
             {
-                ["limit"] = ["24"],
+                ["limit"] = [DefaultPageSize.ToString()],
+                ["offset"] = [((page - 1) * DefaultPageSize).ToString()],
                 ["includes[]"] = ["cover_art"],
                 ["title"] = [query],
             };
@@ -228,7 +229,7 @@ namespace Yukari.Plugin.MangaDex
                 ["order[followedCount]"] = ["desc"],
             };
 
-            return await SearchAsync(string.Empty, trendingFilters, ct);
+            return await SearchAsync(string.Empty, trendingFilters, 1, ct);
         }
 
         public async Task<Comic?> GetDetailsAsync(string comicId, CancellationToken ct = default)
