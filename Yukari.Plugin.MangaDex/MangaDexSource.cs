@@ -9,7 +9,7 @@ namespace Yukari.Plugin.MangaDex
 {
     [ComicSourceMetadata(
         "MangaDex",
-        "2.0.0+core2.0.0",
+        "2.1.0+core2.1.0",
         "https://mangadex.org/img/brand/mangadex-logo.svg",
         "A community-driven manga database and reader."
     )]
@@ -153,7 +153,7 @@ namespace Yukari.Plugin.MangaDex
 
         static MangaDexSource()
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.0.0");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.1.0");
         }
 
         public async Task<IReadOnlyList<Comic>> SearchAsync(
@@ -211,7 +211,8 @@ namespace Yukari.Plugin.MangaDex
                         Tags: [],
                         Year: null,
                         CoverImageUrl: coverUrl,
-                        Langs: []
+                        Langs: [],
+                        Status: GetComicStatus(result.Attributes.Status)
                     );
                 })
                 .ToList();
@@ -269,7 +270,8 @@ namespace Yukari.Plugin.MangaDex
                     .ToArray(),
                 Year: detailsResult.Attributes.Year,
                 CoverImageUrl: coverUrl,
-                Langs: detailsResult.Attributes.Languages
+                Langs: detailsResult.Attributes.Languages,
+                Status: GetComicStatus(detailsResult.Attributes.Status)
             );
         }
 
@@ -415,6 +417,16 @@ namespace Yukari.Plugin.MangaDex
 
             return null;
         }
+
+        private ComicStatus GetComicStatus(string status) =>
+            status switch
+            {
+                "ongoing" => ComicStatus.Ongoing,
+                "completed" => ComicStatus.Completed,
+                "hiatus" => ComicStatus.Hiatus,
+                "cancelled" => ComicStatus.Cancelled,
+                _ => ComicStatus.Unknown,
+            };
 
         private static string? GetLocalizedOrNull(Dictionary<string, string> dict) =>
             dict.TryGetValue("en", out var value) ? value : dict.Values.FirstOrDefault();
