@@ -9,7 +9,7 @@ namespace Yukari.Plugin.MangaDex
 {
     [ComicSourceMetadata(
         "MangaDex",
-        "2.1.0+core2.1.0",
+        "2.2.0+core2.2.0",
         "https://mangadex.org/img/brand/mangadex-logo.svg",
         "A community-driven manga database and reader."
     )]
@@ -153,7 +153,7 @@ namespace Yukari.Plugin.MangaDex
 
         static MangaDexSource()
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.1.0");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.2.0");
         }
 
         public async Task<IReadOnlyList<Comic>> SearchAsync(
@@ -222,6 +222,7 @@ namespace Yukari.Plugin.MangaDex
 
         public async Task<IReadOnlyList<Comic>> GetTrendingAsync(
             IReadOnlyDictionary<string, IReadOnlyList<string>> filters,
+            int page = 1,
             CancellationToken ct = default
         )
         {
@@ -230,7 +231,7 @@ namespace Yukari.Plugin.MangaDex
                 ["order[followedCount]"] = ["desc"],
             };
 
-            return await SearchAsync(string.Empty, trendingFilters, 1, ct);
+            return await SearchAsync(string.Empty, trendingFilters, page, ct);
         }
 
         public async Task<Comic?> GetDetailsAsync(string comicId, CancellationToken ct = default)
