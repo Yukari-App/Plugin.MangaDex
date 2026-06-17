@@ -9,7 +9,7 @@ namespace Yukari.Plugin.MangaDex
 {
     [ComicSourceMetadata(
         "MangaDex",
-        "2.2.0+core2.2.0",
+        "2.2.1+core2.2.0",
         "https://mangadex.org/img/brand/mangadex-logo.svg",
         "A community-driven manga database and reader."
     )]
@@ -153,7 +153,7 @@ namespace Yukari.Plugin.MangaDex
 
         static MangaDexSource()
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.2.0");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.2.1");
         }
 
         public async Task<IReadOnlyList<Comic>> SearchAsync(
@@ -413,7 +413,7 @@ namespace Yukari.Plugin.MangaDex
             if (coverAttributes is JsonElement element)
             {
                 var fileName = element.GetProperty("fileName").GetString();
-                return $"https://uploads.mangadex.org/covers/{comicId}/{fileName}";
+                return $"https://uploads.mangadex.org/covers/{comicId}/{fileName}.256.jpg";
             }
 
             return null;
