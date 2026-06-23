@@ -8,8 +8,8 @@
     <AssemblyName>Yukari.Plugin.MangaDex</AssemblyName>
     <RootNamespace>Yukari.Plugin.MangaDex</RootNamespace>
 
-    <Version>2.2.1+core2.2.0</Version>
-    <AssemblyVersion>2.2.1</AssemblyVersion>
+    <Version>2.3.0+core2.3.0</Version>
+    <AssemblyVersion>2.3.0</AssemblyVersion>
     <AssemblyFileVersion>$(AssemblyVersion)</AssemblyFileVersion>
     <AssemblyInformationalVersion>$(Version)</AssemblyInformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
@@ -17,8 +17,8 @@
     <AssemblyTitle>Yukari MangaDex Plugin</AssemblyTitle>
     <AssemblyProduct>Yukari</AssemblyProduct>
     <Description>MangaDex comic source plugin for Yukari.</Description>
-    <Copyright>Copyright © TXG0Fk3. All rights reserved.</Copyright>
-    <AssemblyCopyright>Copyright © TXG0Fk3. All rights reserved.</AssemblyCopyright>
+    <Copyright>Copyright © TXG0Fk3. Licensed under GPL-3.0.</Copyright>
+    <AssemblyCopyright>Copyright © TXG0Fk3. Licensed under GPL-3.0.</AssemblyCopyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

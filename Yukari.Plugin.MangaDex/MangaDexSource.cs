@@ -9,7 +9,7 @@ namespace Yukari.Plugin.MangaDex;
 
 [ComicSourceMetadata(
     "MangaDex",
-    "2.2.1+core2.3.0",
+    "2.3.0+core2.3.0",
     "https://github.com/Yukari-App/Plugin.MangaDex/releases",
     "https://mangadex.org/img/brand/mangadex-logo.svg",
     "A community-driven manga database and reader."
@@ -151,7 +151,7 @@ public class MangaDexSource : IComicSource
 
     static MangaDexSource()
     {
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.2.1");
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.3.0");
     }
 
     public async Task<IReadOnlyList<Comic>> SearchAsync(
