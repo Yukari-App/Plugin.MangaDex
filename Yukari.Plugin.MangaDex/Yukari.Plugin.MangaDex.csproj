@@ -8,8 +8,8 @@
     <AssemblyName>Yukari.Plugin.MangaDex</AssemblyName>
     <RootNamespace>Yukari.Plugin.MangaDex</RootNamespace>
 
-    <Version>2.3.0+core2.3.0</Version>
-    <AssemblyVersion>2.3.0</AssemblyVersion>
+    <Version>2.4.0+core2.4.0</Version>
+    <AssemblyVersion>2.4.0</AssemblyVersion>
     <AssemblyFileVersion>$(AssemblyVersion)</AssemblyFileVersion>
     <AssemblyInformationalVersion>$(Version)</AssemblyInformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
