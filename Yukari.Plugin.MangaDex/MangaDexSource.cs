@@ -14,7 +14,7 @@ namespace Yukari.Plugin.MangaDex;
     "https://mangadex.org/img/brand/mangadex-logo.svg",
     "A community-driven manga database and reader."
 )]
-public class MangaDexSource : IComicSource
+public class MangaDexSource : IComicSource, IRequiresHttpClient
 {
     private const int DefaultPageSize = 24;
 
@@ -147,12 +147,9 @@ public class MangaDexSource : IComicSource
 
     private const string BaseUrl = "https://api.mangadex.org";
 
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private ISharedHttpClient? _httpClient;
 
-    static MangaDexSource()
-    {
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Yukari.Plugin.MangaDex/2.3.0");
-    }
+    public void SetHttpClient(ISharedHttpClient sharedHttpClient) => _httpClient = sharedHttpClient;
 
     public async Task<IReadOnlyList<Comic>> SearchAsync(
         string query,
@@ -358,14 +355,37 @@ public class MangaDexSource : IComicSource
         return pages;
     }
 
+    public async Task<byte[]?> GetImageBytesAsync(string imageUrl, CancellationToken ct = default)
+    {
+        if (string.IsNullOrEmpty(imageUrl))
+            return null;
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, imageUrl);
+        request.Headers.Add("Referer", "https://mangadex.org/");
+
+        using var response = await _httpClient!.SendAsync(request, ct);
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            throw new HttpRequestException(
+                "MangaDex Rate Limit Exceeded. Try again later.",
+                null,
+                HttpStatusCode.TooManyRequests
+            );
+
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadAsByteArrayAsync(ct);
+    }
+
     public ValueTask DisposeAsync()
     {
         return ValueTask.CompletedTask;
     }
 
-    private static async Task<T?> GetFromApiAsync<T>(string url, CancellationToken ct = default)
+    private async Task<T?> GetFromApiAsync<T>(string url, CancellationToken ct = default)
     {
-        using var response = await _httpClient.GetAsync(url, ct);
+        using var response = await _httpClient!.SendAsync(new HttpRequestMessage(HttpMethod.Get, url), ct);
 
         if (response.StatusCode == HttpStatusCode.TooManyRequests)
             throw new HttpRequestException(
