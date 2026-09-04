@@ -3,13 +3,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Yukari.Core.Models;
 using Yukari.Core.Sources;
+using Yukari.Core.Sources.Http;
 using Yukari.Plugin.MangaDex.Data;
 
 namespace Yukari.Plugin.MangaDex;
 
 [ComicSourceMetadata(
     "MangaDex",
-    "2.4.0+core2.4.0",
+    "2.5.0+core2.5.0",
     "https://github.com/Yukari-App/Plugin.MangaDex/releases",
     "https://mangadex.org/img/brand/mangadex-logo.svg",
     "A community-driven manga database and reader."
@@ -195,7 +196,6 @@ public class MangaDexSource : IComicSource, IRequiresHttpClient
                 return new Comic(
                     Id: result.Id,
                     ComicUrl: null,
-                    Slug: null,
                     Title: GetLocalized(result.Attributes.Title),
                     Author: null,
                     Description: null,
@@ -247,7 +247,6 @@ public class MangaDexSource : IComicSource, IRequiresHttpClient
         return new Comic(
             Id: detailsResult.Id,
             ComicUrl: $"https://mangadex.org/title/{detailsResult.Id}",
-            Slug: null,
             Title: GetLocalized(detailsResult.Attributes.Title),
             Author: author,
             Description: GetLocalizedOrNull(detailsResult.Attributes.Description),
