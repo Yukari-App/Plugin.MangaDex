@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Yukari.Core.Models;
+using Yukari.Core.Models.Settings;
 using Yukari.Core.Sources;
 using Yukari.Core.Sources.Http;
 using Yukari.Plugin.MangaDex.Data;
@@ -15,11 +16,12 @@ namespace Yukari.Plugin.MangaDex;
     "https://mangadex.org/img/brand/mangadex-logo.svg",
     "A community-driven manga database and reader."
 )]
-public class MangaDexSource : IComicSource, IRequiresHttpClient
+public class MangaDexSource : IComicSource, IRequiresHttpClient, IConfigurableSource
 {
     private const int DefaultPageSize = 24;
 
     private static IReadOnlyList<Filter>? _filters;
+    private static IReadOnlyList<SourceSetting>? _settings;
     private static IReadOnlyDictionary<string, string>? _languages;
 
     public IReadOnlyList<Filter> Filters =>
@@ -149,8 +151,22 @@ public class MangaDexSource : IComicSource, IRequiresHttpClient
     private const string BaseUrl = "https://api.mangadex.org";
 
     private ISharedHttpClient? _httpClient;
+    private bool _useDataSaver;
+
+    public IReadOnlyList<SourceSetting> Settings =>
+        _settings ??= [
+            new ToggleSetting
+            {
+                Key = "data_saver",
+                Header = "Data Saver",
+                Description = "Reduces bandwidth by loading compressed lower-resolution pages.",
+                DefaultValue = false,
+            },
+        ];
 
     public void SetHttpClient(ISharedHttpClient sharedHttpClient) => _httpClient = sharedHttpClient;
+
+    public void ApplySettings(ISourceSettings settings) => _useDataSaver = settings.GetBool("data_saver");
 
     public async Task<IReadOnlyList<Comic>> SearchAsync(
         string query,
@@ -342,14 +358,18 @@ public class MangaDexSource : IComicSource, IRequiresHttpClient
         if (pageResponse is null)
             return new List<ChapterPage>();
 
-        string[] data = pageResponse.ChapterPages.Data;
+        bool useDataSaver = _useDataSaver;
+        string[] data = useDataSaver ? pageResponse.ChapterPages.DataSaver : pageResponse.ChapterPages.Data;
+        string qualitySegment = useDataSaver ? "data-saver" : "data";
         string baseUrl = pageResponse.BaseUrl;
         string hash = pageResponse.ChapterPages.Hash;
 
         var pages = new List<ChapterPage>(data.Length);
         for (int i = 0; i < data.Length; i++)
         {
-            pages.Add(new ChapterPage(Number: i + 1, ImageUrl: $"{baseUrl}/data/{hash}/{data[i]}"));
+            pages.Add(
+                new ChapterPage(Number: i + 1, ImageUrl: $"{baseUrl}/{qualitySegment}/{hash}/{data[i]}")
+            );
         }
         return pages;
     }
