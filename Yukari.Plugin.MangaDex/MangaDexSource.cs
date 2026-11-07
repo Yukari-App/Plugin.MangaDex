@@ -9,7 +9,7 @@ namespace Yukari.Plugin.MangaDex;
 
 [ComicSourceMetadata(
     "MangaDex",
-    "2.5.0+core2.5.0",
+    "2.6.0+core2.6.0",
     "https://github.com/Yukari-App/Plugin.MangaDex/releases",
     "https://mangadex.org/img/brand/mangadex-logo.svg",
     "A community-driven manga database and reader."
