@@ -36,6 +36,14 @@ Built for the **[Yukari](https://github.com/Yukari-App/Yukari)** Windows reader 
 - Done. Now you can go to **Discover** and search for **Comics** in that source.
 
 <div align="center">
+    <h2>⚙️ Settings</h2>
+</div>
+
+Available in **Yukari** (**Core 2.6.0+**) via **Settings → Comic Sources → ⋯ menu → Settings**:
+
+- **Data Saver** (Default: *Disabled*): Loads compressed, lower-resolution pages from MangaDex's data-saver network to reduce bandwidth usage and speed up page loading.
+
+<div align="center">
     <h2>🗒️ Notes</h2>
 </div>
 
